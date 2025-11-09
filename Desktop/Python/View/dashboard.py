@@ -10,7 +10,7 @@ from ttkbootstrap.scrolled  import ScrolledFrame
 
 
 # Importing the classes for the controls : 
-# import add_task
+import add_task
 
 
 
