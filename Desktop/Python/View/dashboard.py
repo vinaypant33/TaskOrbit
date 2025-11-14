@@ -6,11 +6,12 @@ import sys
 from datetime import time
 from PIL import Image , ImageTk
 from ttkbootstrap.scrolled  import ScrolledFrame
-
+from pubsub import pub  
 
 
 # Importing the classes for the controls : 
 from View import add_task
+
 
 
 
@@ -60,31 +61,31 @@ def show_selection_menu(event):
 def help_window(event):
     main_help_window = btk.Toplevel(main_application )
     main_help_window.configure(background="#303030")
-
-    
     master_x = main_application.winfo_x()
     master_y = main_application.winfo_y()
     main_help_window.geometry(f"300x300+{master_x  + 50}+{master_y + 100}")
     main_help_window.overrideredirect(True)
-
     title_bar  = btk.Frame(main_help_window , height=29  , width = main_help_window.winfo_width(), bootstyle  = "info")
     title_bar.pack_propagate(0)
-
     close_button = btk.Button(master = title_bar  ,text='\u2716'  , bootstyle  = "dark" , command=main_help_window.destroy)
-
     help_text = btk.Label(master=main_help_window , text="This is the another helper function \n and this to be done for the main application")
-
-
     close_button.bind("<Enter>" , lambda x : close_button.configure(bootstyle  = "danger"))
     close_button.bind("<Leave>" , lambda x : close_button.configure(bootstyle  = "dark"))
-
-    
-
     title_bar.pack(side=btk.TOP , fill=btk.X)
     close_button.pack(side=tk.RIGHT , padx=0)
 
     help_text.pack()
     main_help_window.mainloop()
+
+
+
+
+# Functions for the Pubsub : 
+def message(message_string):
+    message_string = str(message_string)
+    task_name  = message_string.split(",")[0]
+    current_time  = message_string.split(",")[1]
+    add_task.add_completed_task(below_added_tasks_frame , task_name , current_time)
 
 
 
@@ -127,6 +128,7 @@ add_task_menu.add_command(label="Settings")
 add_task_menu.add_checkbutton(label="Black Theme")
 add_task_menu.add_separator()
 add_task_menu.add_command(label="Exit" , command=close_application)
+
 
 # menubar_01["menu"] = add_task_menu This wont work as it is not the menu button anymore but we can open the menu on the place as : 
 
@@ -200,7 +202,8 @@ below_added_tasks_frame.pack(side=btk.TOP , padx=10 , pady=10)
 
 
 
-# Getting the controls in the main application  : 
+# Receive the messages from the other PubSub 
+pub.subscribe(listener = message , topicName="timer_data")
 
 
 main_application.mainloop()
